@@ -105,7 +105,7 @@ const openseaSVG = (
 
 const Landing = () => {
   return (
-    <div className="container grid grid-cols-1 gap-4 p-4 max-w-7xl md:grid-cols-2 lg:grid-cols-3 gap-y-8 text-[#fafafa]">
+    <div className="container grid grid-cols-1 gap-x-8 p-4 max-w-7xl md:grid-cols-2 lg:grid-cols-3 gap-y-12 text-[#fafafa]">
       <RaffleCard />
       <RaffleCard />
       <RaffleCard />
@@ -177,8 +177,10 @@ const RaffleCard = () => {
         </p>
       </div>
       <hr className="w-full border-gray-600" />
-      <div className="flex flex-row justify-between w-full h-full px-2 mt-3">
-        <p className="mt-2 text-lg font-medium raff-card-description">$10</p>
+      <div className="flex flex-row justify-between w-full h-full px-1 mt-3">
+        <p className="mt-2 text-lg font-medium raff-card-description">
+          10 $STRIPE
+        </p>
         <button className="px-4 py-2 text-lg font-medium transition duration-500 ease-in-out transform rounded-3xl bg-primary hover:bg-pHover">
           Buy Ticket
         </button>

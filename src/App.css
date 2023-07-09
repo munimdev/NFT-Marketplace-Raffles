@@ -1,3 +1,147 @@
+.nav-item {
+  position: relative;
+}
+
+.nav-item:hover {
+  color: #fd562a;
+  transition: color 0.5s ease;
+}
+
+.nav-item:hover:after,
+.nav-item:hover:before {
+  transition: width 0.5s ease;
+  width: 50%;
+}
+
+.nav-item:before {
+  left: 0;
+}
+
+.nav-item:after {
+  right: 0;
+}
+
+.nav-item:before,
+.nav-item:after {
+  background: #fd562a;
+  bottom: -5px;
+  content: "";
+  height: 2px;
+  position: absolute;
+  transition: width 0.3s ease;
+  width: 0;
+}
+
+.nav-wallet {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  transition: color 0.4s linear;
+}
+
+.nav-wallet:hover {
+  color: white;
+  transition: all 0.3s linear;
+}
+
+.nav-wallet:before {
+  left: -20px;
+  transform: translate(-50%, -50%);
+}
+
+.nav-wallet:after {
+  right: -20px;
+  transform: translate(50%, -50%);
+}
+
+.nav-wallet:before,
+.nav-wallet:after {
+  background-color: #fd562a;
+  border-radius: 50%;
+  content: "";
+  height: 20px;
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  z-index: -1;
+}
+
+.nav-wallet:hover:before {
+  -webkit-animation: criss-cross-left 0.8s both;
+  animation: criss-cross-left 0.8s both;
+  -webkit-animation-direction: alternate;
+  animation-direction: alternate;
+}
+
+.nav-wallet:hover:after {
+  -webkit-animation: criss-cross-right 0.8s both;
+  animation: criss-cross-right 0.8s both;
+  -webkit-animation-direction: alternate;
+  animation-direction: alternate;
+}
+
+@-webkit-keyframes criss-cross-left {
+  0% {
+    left: -20px;
+  }
+  50% {
+    left: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  100% {
+    left: 50%;
+    width: 375px;
+    height: 375px;
+  }
+}
+
+@keyframes criss-cross-left {
+  0% {
+    left: -20px;
+  }
+  50% {
+    left: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  100% {
+    left: 50%;
+    width: 375px;
+    height: 375px;
+  }
+}
+@-webkit-keyframes criss-cross-right {
+  0% {
+    right: -20px;
+  }
+  50% {
+    right: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  100% {
+    right: 50%;
+    width: 375px;
+    height: 375px;
+  }
+}
+@keyframes criss-cross-right {
+  0% {
+    right: -20px;
+  }
+  50% {
+    right: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  100% {
+    right: 50%;
+    width: 375px;
+    height: 375px;
+  }
+}
+
 .App {
   text-align: center;
 }

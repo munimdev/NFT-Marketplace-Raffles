@@ -2,8 +2,11 @@ import React from "react";
 import { Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { FaSignInAlt, FaWallet } from "react-icons/fa";
 import { useModal } from "../context/ModalContext";
 import { Link } from "react-router-dom";
+
+import logo from "../assets/images/wld-logo.png";
 
 function Navbar({ transparent = false }) {
   const {
@@ -11,7 +14,7 @@ function Navbar({ transparent = false }) {
     connectWalletHandle,
     isWalletAlreadyConnected,
     disconnectWalletFromApp,
-    newConnectWallet,
+    connectWallet,
   } = useModal();
 
   const navLinks = [
@@ -38,7 +41,7 @@ function Navbar({ transparent = false }) {
   ];
 
   return (
-    <div>
+    <div className="">
       <Popover
         className={
           transparent
@@ -47,26 +50,46 @@ function Navbar({ transparent = false }) {
         }
         style={{ zIndex: 100 }}
       >
-        <div className="text-white">
-          <div className="flex items-center py-5 border-gray-100 md:space-x-6">
+        <div className="container text-white max-w-7xl">
+          <div className="flex items-center justify-between py-5 border-gray-100 md:space-x-6">
+            <div className="flex items-center justify-start space-x-0 sm:space-x-4 lg:space-x-8">
+              <Link to="/">
+                <span className="text-white sr-only">Your Company</span>
+                <img
+                  className="w-auto h-1/2 md:h-16"
+                  // src="assets/logo new.png"
+                  src={logo}
+                  alt=""
+                />
+              </Link>
+            </div>
             <Popover.Group
               as="nav"
-              className="hidden mx-auto space-x-0 md:flex md:gap-2"
+              className="hidden mx-auto space-x-0 md:flex md:gap-6"
             >
               <a
                 href="https://wildtigers.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 px-4 inline-flex items-center rounded-full text-3xl text-black hover:bg-neutral-100 hover:text-[#e08b3c]`}
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
               >
                 <span>Home</span>
+              </a>
+              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              <a
+                href="https://mint.wildtigers.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+              >
+                <span>Mint</span>
               </a>
               <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
               <a
                 href="https://wildtigers.xyz/artwork/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 px-4 inline-flex items-center rounded-full text-3xl text-black hover:bg-neutral-100 hover:text-[#e08b3c]`}
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
               >
                 <span>Artwork</span>
               </a>
@@ -75,7 +98,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/wild-world/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 px-4 inline-flex items-center rounded-full text-3xl text-black hover:bg-neutral-100 hover:text-[#e08b3c]`}
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
               >
                 <span>Wild World</span>
               </a>
@@ -84,7 +107,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/characters/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 px-4 inline-flex items-center rounded-full text-3xl text-black hover:bg-neutral-100 hover:text-[#e08b3c]`}
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
               >
                 <span>Characters</span>
               </a>
@@ -93,7 +116,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/team/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 px-4 inline-flex items-center rounded-full text-3xl text-black hover:bg-neutral-100 hover:text-[#e08b3c]`}
+                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
               >
                 <span>Team</span>
               </a>
@@ -104,6 +127,36 @@ function Navbar({ transparent = false }) {
                 <span className="sr-only">Open menu</span>
                 <Bars3Icon className="w-6 h-6" aria-hidden="true" />
               </Popover.Button>
+            </div>
+
+            <div className="items-center hidden text-xl md:flex">
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
+              {account !== undefined ? (
+                <>
+                  <button
+                    onClick={() => disconnectWalletFromApp()}
+                    className="inline-flex items-center justify-center gap-1 px-10 py-3 font-medium text-white bg-transparent border rounded-full shadow-sm nav-wallet border-primary whitespace-nowrap"
+                  >
+                    {/* <FaWallet className="w-4 " /> */}
+                    {/* display first 6 and last 4 chaarcters of user's wallet address saved in: account[0] */}
+                    {/* {account[0].slice(0, 6) + "..." + account[0].slice(-4)} */}
+                    {"My Account"}
+                  </button>
+                  {/* spacer div */}
+                  <div className="hidden h-10 mr-3 sm:block border-primary dark:border-neutral-6000"></div>
+                  {/* <AccountDropdown /> */}
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => connectWallet()}
+                    className="inline-flex items-center justify-center gap-4 px-10 py-3 font-medium text-white bg-transparent border rounded-full shadow-sm nav-wallet border-primary whitespace-nowrap"
+                  >
+                    {/* <FaWallet className="w-4 " /> */}
+                    Connect Wallet
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

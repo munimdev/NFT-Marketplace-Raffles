@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// https://realtimecolors.com/?colors=fafafa-050505-fd562a-100f0f-63a419
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
@@ -28,10 +29,6 @@ module.exports = {
       center: true,
       padding: {
         DEFAULT: "1rem",
-        sm: "2rem",
-        lg: "4rem",
-        xl: "5rem",
-        "2xl": "6rem",
       },
       margin: "auto",
       width: "100%",
