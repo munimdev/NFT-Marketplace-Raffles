@@ -1,18 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Fragment } from "react";
-import { Popover, Transition, Menu } from "@headlessui/react";
-import {
-  ArrowPathIcon,
-  Bars3Icon,
-  ChartBarIcon,
-  CursorArrowRaysIcon,
-  ShieldCheckIcon,
-  Squares2X2Icon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { Popover, Transition } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useModal } from "../context/ModalContext";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
 
 function Navbar({ transparent = false }) {
   const {
