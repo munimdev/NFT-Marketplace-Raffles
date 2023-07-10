@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../assets/images/wld-logo.png";
 
 const globeSVG = (
   <svg
@@ -103,14 +104,79 @@ const openseaSVG = (
   </svg>
 );
 
+const ethereumSVG = (
+  <svg
+    fill="#FFFFFF"
+    width="24px"
+    height="24px"
+    viewBox="0 0 0.96 0.96"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="m0.478 0.719 -0.295 -0.174 0.295 0.415 0.295 -0.415 -0.295 0.174zM0.482 0 0.188 0.489l0.295 0.174 0.295 -0.174z" />
+  </svg>
+);
+
 const Landing = () => {
   return (
-    <div className="container grid grid-cols-1 gap-x-8 p-4 max-w-7xl md:grid-cols-2 lg:grid-cols-3 gap-y-12 text-[#fafafa]">
-      <RaffleCard />
-      <RaffleCard />
-      <RaffleCard />
-      <RaffleCard />
-      <RaffleCard />
+    <div className="container max-w-7xl">
+      <div className="grid grid-cols-1 gap-x-8 p-4 md:grid-cols-2 lg:grid-cols-3 gap-y-12 text-[#fafafa]">
+        <RaffleCard />
+        <RaffleCard />
+        <RaffleCard />
+        <RaffleCard />
+        <RaffleCard />
+      </div>
+      <div>
+        <div className="flex justify-center my-16">
+          <img
+            className="object-cover rounded-2xl"
+            style={{ width: "20rem" }}
+            src={logo}
+            alt="Wild Tigers"
+          />
+        </div>
+        <p className="text-2xl text-white">
+          {"Wild Tigers Marketplace is coming soon!"}
+        </p>
+        <div className="flex flex-row items-center justify-center gap-5 m-3 mt-6">
+          <a
+            href="/"
+            className="flex items-center justify-center px-4 py-4 bg-primary"
+            style={{
+              borderRadius: "100%",
+            }}
+          >
+            {twitterSVG}
+          </a>
+          <a
+            href="/"
+            className="flex items-center justify-center px-4 py-4 bg-primary"
+            style={{
+              borderRadius: "100%",
+            }}
+          >
+            {discordSVG}
+          </a>
+          <a
+            href="/"
+            className="flex items-center justify-center px-4 py-4 bg-primary"
+            style={{
+              borderRadius: "100%",
+            }}
+          >
+            {ethereumSVG}
+          </a>
+          <a
+            href="/"
+            className="flex items-center justify-center px-4 py-4 bg-primary"
+            style={{
+              borderRadius: "100%",
+            }}
+          >
+            {openseaSVG}
+          </a>
+        </div>
+      </div>
     </div>
   );
 };
@@ -173,7 +239,7 @@ const RaffleCard = () => {
           Expires at: July 15, 2023
         </p>
         <p className="mt-2 text-lg font-medium raff-card-description">
-          113/300 tickets sold
+          113 tickets sold
         </p>
       </div>
       <hr className="w-full border-gray-600" />

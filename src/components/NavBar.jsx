@@ -54,9 +54,10 @@ function Navbar({ transparent = false }) {
           <div className="flex items-center justify-between py-5 border-gray-100 md:space-x-6">
             <div className="flex items-center justify-start space-x-0 sm:space-x-4 lg:space-x-8">
               <Link to="/">
-                <span className="text-white sr-only">Your Company</span>
+                {/* <span className="text-white sr-only"></span> */}
                 <img
-                  className="w-auto h-1/2 md:h-16"
+                  // className="w-auto h-1/2 md:h-16"
+                  className="nav-logo"
                   // src="assets/logo new.png"
                   src={logo}
                   alt=""
@@ -122,14 +123,14 @@ function Navbar({ transparent = false }) {
               </a>
             </Popover.Group>
 
-            <div className="-my-2 md:hidden ml-[90%]">
+            <div className="-my-2 lg:hidden ">
               <Popover.Button className="inline-flex items-center justify-center p-2 text-white rounded-md">
                 <span className="sr-only">Open menu</span>
                 <Bars3Icon className="w-6 h-6" aria-hidden="true" />
               </Popover.Button>
             </div>
 
-            <div className="items-center hidden text-xl md:flex">
+            <div className="items-center hidden text-xl lg:flex">
               {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               {account !== undefined ? (
                 <>
@@ -172,9 +173,9 @@ function Navbar({ transparent = false }) {
         >
           <Popover.Panel
             focus
-            className="absolute inset-x-0 top-0 p-2 transition origin-top-right transform md:hidden"
+            className="absolute inset-x-0 top-0 p-2 transition origin-top-right transform lg:hidden"
           >
-            <div className="text-white bg-[#e08b3c] divide-y-2 rounded-lg shadow-lg divide-gray-50 ring-1 ring-white ring-opacity-5">
+            <div className="text-white divide-y-2 rounded-lg shadow-lg bg-secondary divide-gray-50 ring-1 ring-white ring-opacity-5">
               <div className="px-5 pt-5 pb-6 ">
                 <div className="flex items-center justify-between ">
                   <div>
@@ -203,6 +204,37 @@ function Navbar({ transparent = false }) {
                       </Link>
                     ))}
                   </nav>
+                  {/* <div className="hidden h-6 mr-3 border-b border-white sm:block place-self-center dark:border-neutral-6000"></div> */}
+                  <hr className="w-full my-5 border-gray-600" />
+                  <div className="items-center text-xl">
+                    {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
+                    {account !== undefined ? (
+                      <>
+                        <button
+                          onClick={() => disconnectWalletFromApp()}
+                          className="inline-flex items-center justify-center gap-1 px-10 py-3 font-medium text-white bg-transparent border rounded-full shadow-sm nav-wallet border-primary whitespace-nowrap"
+                        >
+                          {/* <FaWallet className="w-4 " /> */}
+                          {/* display first 6 and last 4 chaarcters of user's wallet address saved in: account[0] */}
+                          {/* {account[0].slice(0, 6) + "..." + account[0].slice(-4)} */}
+                          {"My Account"}
+                        </button>
+                        {/* spacer div */}
+                        <div className="hidden h-10 mr-3 sm:block border-primary dark:border-neutral-6000"></div>
+                        {/* <AccountDropdown /> */}
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => connectWallet()}
+                          className="inline-flex items-center justify-center gap-4 px-10 py-3 font-medium text-white bg-transparent border rounded-full shadow-sm nav-wallet border-primary whitespace-nowrap"
+                        >
+                          {/* <FaWallet className="w-4 " /> */}
+                          Connect Wallet
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

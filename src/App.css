@@ -1,3 +1,8 @@
+.nav-logo {
+  height: 80px;
+  min-width: 100%;
+}
+
 .nav-item {
   position: relative;
 }
