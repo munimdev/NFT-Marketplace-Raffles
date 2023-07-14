@@ -1,5 +1,12 @@
-import React from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import logo from "../assets/images/wld-logo.png";
+import mintGif from "../assets/images/mint.gif";
+import stripeLogo from "../assets/images/stripe-logo.png";
+import { Dialog, Transition } from "@headlessui/react";
+import { useModal } from "../context/ModalContext";
+import { toast } from "react-toastify";
+import { getAllRaffles, getUserRaffles, purchaseTickets } from "../util/api";
+import { Link } from "react-router-dom";
 
 const globeSVG = (
   <svg
@@ -117,14 +124,105 @@ const ethereumSVG = (
 );
 
 const Landing = () => {
+  const [raffles, setRaffles] = useState([]);
+  const { account, user } = useModal();
+
+  useEffect(() => {
+    const fetchRaffles = async () => {
+      try {
+        const { data } = await getAllRaffles();
+        // console.log(data);
+        setRaffles(data);
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+    fetchRaffles();
+  }, []);
+
+  const purchaseTicket = async (raffleId, quantity) => {
+    // return promises
+    if (!account) {
+      return new Promise((_, reject) => {
+        reject("Please connect your wallet first");
+      });
+    }
+    const loadingToast = toast.loading("Purchasing ticket...");
+    try {
+      await purchaseTickets({
+        raffleId: raffleId,
+        address: account[0],
+        quantity: quantity,
+      }).catch((error) => {
+        return new Promise((_, reject) => {
+          toast.dismiss(loadingToast);
+          reject(error.response.data.message);
+        });
+      });
+      return new Promise((resolve, _) => {
+        toast.dismiss(loadingToast);
+        resolve(`Successfully purchased ${quantity} tickets`);
+      });
+    } catch (error) {
+      return new Promise((_, reject) => {
+        toast.dismiss(loadingToast);
+        reject(error);
+      });
+    }
+  };
+
   return (
-    <div className="container max-w-7xl">
-      <div className="grid grid-cols-1 gap-x-8 p-4 md:grid-cols-2 lg:grid-cols-3 gap-y-12 text-[#fafafa]">
+    <div className="container max-w-5xl mt-10">
+      {account && (
+        <div className="flex flex-row items-center justify-between mb-5">
+          <div className="flex items-center gap-4">
+            <img
+              className="object-cover w-16 rounded-2xl"
+              src={mintGif}
+              alt="PFP"
+            />
+            <Link
+              to={"/account"}
+              className="text-2xl text-white hover:text-pHover"
+            >
+              {`${account[0].slice(0, 5)} ...`}
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center justify-center gap-1 ml-14">
+              <img
+                className="object-cover rounded-2xl"
+                style={{ width: "50px" }}
+                src={stripeLogo}
+                alt="$STRIPE Logo"
+              />
+              <span
+                className="text-white"
+                style={{
+                  fontSize: "0.675rem",
+                }}
+              >
+                $STRIPE
+              </span>
+            </div>
+            <span className="text-2xl text-white">{user.points} </span>
+          </div>
+        </div>
+      )}
+      <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
+        {/* <RaffleCard />
         <RaffleCard />
         <RaffleCard />
         <RaffleCard />
-        <RaffleCard />
-        <RaffleCard />
+        <RaffleCard /> */}
+        {raffles?.map((raffle) => (
+          <RaffleCard
+            key={raffle._id}
+            raffleDetails={raffle}
+            account={account}
+            handlePurchase={purchaseTicket}
+          />
+        ))}
       </div>
       <div>
         <div className="flex justify-center my-16">
@@ -141,7 +239,7 @@ const Landing = () => {
         <div className="flex flex-row items-center justify-center gap-5 m-3 mt-6">
           <a
             href="/"
-            className="flex items-center justify-center px-4 py-4 bg-primary"
+            className="flex items-center justify-center px-4 py-4 transition duration-300 ease-in-out bg-primary hover:bg-pHover hover:-translate-y-1"
             style={{
               borderRadius: "100%",
             }}
@@ -150,7 +248,7 @@ const Landing = () => {
           </a>
           <a
             href="/"
-            className="flex items-center justify-center px-4 py-4 bg-primary"
+            className="flex items-center justify-center px-4 py-4 transition duration-300 ease-in-out bg-primary hover:bg-pHover hover:-translate-y-1"
             style={{
               borderRadius: "100%",
             }}
@@ -159,7 +257,7 @@ const Landing = () => {
           </a>
           <a
             href="/"
-            className="flex items-center justify-center px-4 py-4 bg-primary"
+            className="flex items-center justify-center px-4 py-4 transition duration-300 ease-in-out bg-primary hover:bg-pHover hover:-translate-y-1"
             style={{
               borderRadius: "100%",
             }}
@@ -168,7 +266,7 @@ const Landing = () => {
           </a>
           <a
             href="/"
-            className="flex items-center justify-center px-4 py-4 bg-primary"
+            className="flex items-center justify-center px-4 py-4 transition duration-300 ease-in-out bg-primary hover:bg-pHover hover:-translate-y-1"
             style={{
               borderRadius: "100%",
             }}
@@ -181,75 +279,312 @@ const Landing = () => {
   );
 };
 
-const RaffleCard = () => {
+const svgMapping = {
+  opensea: openseaSVG,
+  etherscan: globeSVG,
+  twitter: twitterSVG,
+  discord: discordSVG,
+};
+
+const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
+  const [open, setOpen] = React.useState(false);
+  const [days, setDays] = React.useState(0);
+  const [hours, setHours] = React.useState(0);
+  const [minutes, setMinutes] = React.useState(0);
+  const [seconds, setSeconds] = React.useState(0);
+  const [ticketBalance, setTicketBalance] = React.useState(0);
+  const [raffle, setRaffle] = React.useState(raffleDetails);
+
+  React.useEffect(() => {
+    if (account) {
+      const fetchBalance = async () => {
+        const { data } = await getUserRaffles({
+          raffleId: raffle._id,
+          address: account[0],
+        });
+        setTicketBalance(data?.length);
+      };
+      try {
+        fetchBalance();
+      } catch (error) {
+        toast.error(error.message);
+      }
+    } else {
+      setTicketBalance(0);
+    }
+  }, [account, raffle._id]);
+
+  React.useEffect(() => {
+    if (open) {
+      const intervalId = setInterval(() => {
+        const timeDifference = new Date(raffle.expiry) - new Date();
+
+        if (timeDifference < 0) {
+          clearInterval(intervalId);
+        } else {
+          const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+          setDays(days);
+          setHours(hours);
+          setMinutes(minutes);
+          setSeconds(seconds);
+        }
+      }, 1000);
+
+      // Clear interval on component unmount or when 'open' changes to false
+      return () => clearInterval(intervalId);
+    }
+  }, [raffle.expiry, open]);
+
+  const [counter, setCounter] = React.useState(1);
+  const maxCount = 5;
+
+  const handleIncrement = () => {
+    if (counter < maxCount) {
+      setCounter((counter) => counter + 1);
+    }
+  };
+  const handleDecrement = () => {
+    if (counter > 1) {
+      setCounter((counter) => counter - 1);
+    }
+  };
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handlePurchaseTicket = async () => {
+    try {
+      const res = await handlePurchase(raffle._id, counter);
+      toast.success(res);
+      setTicketBalance((ticketBalance) => ticketBalance + counter);
+      setRaffle((raffle) => ({
+        ...raffle,
+        tickets: raffle.tickets + counter,
+        ticketsSold: raffle.ticketsSold + counter,
+      }));
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-5 shadow-md bg-secondary rounded-3xl">
-      <div className="text-2xl font-bold raff-card-title">Wild Heart #1234</div>
+      <div className="text-xl font-bold raff-card-title">{`${raffle.item.name} #${raffle.item.tokenId}`}</div>
       <div className="mt-6 raff-card-image">
         <img
-          className="object-cover w-full h-full rounded-2xl"
-          src="https://bronze-brilliant-mosquito-538.mypinata.cloud/ipfs/QmRSZjDoMCqjxeyF3N8mLQqJC3YRAdAFk1GGKpbePbVCr8/WildHeart.png"
-          alt="Wild Heart"
+          className="object-cover rounded-2xl"
+          src={`${raffle.item.image}?img-width=684`}
+          alt={`${raffle.item.name} #${raffle.item.tokenId}`}
         />
       </div>
       <div className="flex flex-row items-center justify-center m-3">
-        <a
-          href="/"
-          className="flex items-center justify-center w-full px-4 py-2"
-        >
-          {globeSVG}
-        </a>
-        <a
-          href="/"
-          className="flex items-center justify-center w-full px-4 py-2"
-        >
-          {discordSVG}
-        </a>
-        <a
-          href="/"
-          className="flex items-center justify-center w-full px-4 py-2"
-        >
-          {twitterSVG}
-        </a>
-        <a
-          href="/"
-          className="flex items-center justify-center w-full px-4 py-2"
-        >
-          {openseaSVG}
-        </a>
+        {Object.keys(raffle.item.links).map(
+          (key) =>
+            svgMapping[key] && (
+              <a
+                key={key}
+                href={raffle.item.links[key]}
+                className="flex items-center justify-center w-full px-4 py-2"
+              >
+                {svgMapping[key]}
+              </a>
+            )
+        )}
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-col items-center justify-center w-full h-full m-3">
-        <p className="mt-2 text-lg font-medium raff-card-description">
-          Raffle for Wild Heart #1234
+        <p className="mt-2 text-base font-medium raff-card-description">
+          Raffle for {`${raffle.item.name} #${raffle.item.tokenId}`}
         </p>
-        <p className="mt-2 text-lg font-medium raff-card-description">
-          10 $STRIPE per ticket
+        <p className="mt-2 text-base font-medium raff-card-description">
+          {raffle.price} $STRIPE per ticket
         </p>
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-col items-center justify-center w-full h-full m-3">
-        <p className="mt-2 text-lg font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium raff-card-description">
           Type: RAFFLE
         </p>
-        <p className="mt-2 text-lg font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium raff-card-description">
           Maximum entries: 5 per wallet
         </p>
-        <p className="mt-2 text-lg font-medium raff-card-description">
-          Expires at: July 15, 2023
+        <p className="mt-2 text-base font-medium raff-card-description">
+          Expires at: {new Date(raffle.expiry).toLocaleString()}
         </p>
-        <p className="mt-2 text-lg font-medium raff-card-description">
-          113 tickets sold
+        <p className="mt-2 text-base font-medium raff-card-description">
+          Tickets sold {raffle.ticketsSold}/{raffle.maxTickets}
         </p>
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-row justify-between w-full h-full px-1 mt-3">
-        <p className="mt-2 text-lg font-medium raff-card-description">
-          10 $STRIPE
+        <p className="mt-2 text-base font-medium raff-card-description">
+          {raffle.price} $STRIPE
         </p>
-        <button className="px-4 py-2 text-lg font-medium transition duration-500 ease-in-out transform rounded-3xl bg-primary hover:bg-pHover">
+        <button
+          onClick={handleOpen}
+          className="px-4 py-2 text-base font-medium transition duration-500 ease-in-out transform rounded-3xl bg-primary hover:bg-pHover"
+        >
           Buy Ticket
         </button>
+        <Transition appear show={open} as={Fragment} className="sm:my-40">
+          <Dialog as="div" className="relative z-10" onClose={handleClose}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-25" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-full p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-6xl p-6 overflow-hidden text-left align-middle transition-all transform shadow-xl bg-secondary rounded-2xl">
+                    {/* <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-text"
+                    >
+                      Payment successful
+                    </Dialog.Title> */}
+                    <div className="grid grid-cols-1 gap-4 mt-2 lg:grid-cols-2">
+                      <div className="flex flex-col items-center justify-center p-8">
+                        <div className="text-xl font-bold raff-card-title">
+                          {`${raffle.item.name} #${raffle.item.tokenId}`}
+                        </div>
+                        <div className="mt-4 raff-card-image">
+                          <img
+                            className="object-cover w-full h-full rounded-2xl"
+                            src={raffle.item.image}
+                            alt={`${raffle.item.name} #${raffle.item.tokenId}`}
+                          />
+                        </div>
+                        <div className="self-start mt-2 text-base font-light text-left text-gray-400 raff-card-title">
+                          {raffle.item.description}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-8">
+                        <p className="text-xl font-medium raff-card-description">
+                          {raffle.ticketsSold}/{raffle.maxTickets}
+                          {" tickets "}
+                          <span className="text-primary">sold</span>
+                        </p>
+                        <div className="flex flex-row items-center justify-center w-full gap-4 mt-20 text-3xl countdown-timer">
+                          <div className="flex flex-col items-center">
+                            <div className="pb-1 text-xl">{`${
+                              days !== 1 ? "Days" : "Day"
+                            }`}</div>
+                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                              {days}
+                            </div>
+                          </div>
+                          <div className="mt-4 text-2xl">:</div>
+                          <div className="flex flex-col items-center">
+                            <div className="pb-1 text-xl">{`${
+                              hours !== 1 ? "Hours" : "Hour"
+                            }`}</div>
+                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                              {hours}
+                            </div>
+                          </div>
+                          <div className="mt-4 text-2xl">:</div>
+                          <div className="flex flex-col items-center">
+                            <div className="pb-1 text-xl">{`${
+                              minutes !== 1 ? "Minutes" : "Minute"
+                            }`}</div>
+                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                              {minutes}
+                            </div>
+                          </div>
+                          <div className="mt-4 text-2xl">:</div>
+                          <div className="flex flex-col items-center">
+                            <div className="pb-1 text-xl">{`${
+                              seconds !== 1 ? "Seconds" : "Second"
+                            }`}</div>
+                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                              {seconds}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-row items-center justify-center w-full gap-20 mb-10 mt-14">
+                          <button
+                            className="w-10 h-10 text-base font-medium border border-primary"
+                            onClick={handleDecrement}
+                          >
+                            -
+                          </button>
+                          <span className="text-2xl font-medium">
+                            {counter}
+                          </span>
+                          <button
+                            className="w-10 h-10 text-base font-medium border border-primary"
+                            onClick={handleIncrement}
+                          >
+                            +
+                          </button>
+                        </div>
+                        <div className="flex flex-col items-center justify-center w-full">
+                          <div className="flex flex-row items-center gap-8">
+                            <button
+                              className="text-base font-medium"
+                              onClick={handlePurchaseTicket}
+                            >
+                              <div className="flex flex-row items-center justify-center w-full gap-2 px-5 py-3 bg-primary rounded-3xl hover:bg-pHover">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                                  />
+                                </svg>
+                                <span>Purchase</span>
+                              </div>
+                            </button>
+                            <p className="text-lg">
+                              {/* {`${counter * 10} $STRIPE`} */}
+                              {`${counter * raffle.price} $STRIPE`}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="mt-10 text-lg">
+                          You currently own{" "}
+                          <span className="text-primary">{ticketBalance}</span>{" "}
+                          tickets
+                        </p>
+                      </div>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
       </div>
     </div>
   );

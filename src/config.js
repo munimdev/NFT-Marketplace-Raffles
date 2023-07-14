@@ -110,5 +110,5 @@ export const isWalletConnected = () => {
 };
 
 export const connectWalletLocaly = () => {
-  localStorage.setItem("isWalletConnected", true);
+  localStorage.setItem("isWalletConnected", "true");
 };

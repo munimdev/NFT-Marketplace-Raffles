@@ -19,6 +19,10 @@ body {
   color: #fcfcfd;
 }
 
+*::selection {
+  background: #63a419;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

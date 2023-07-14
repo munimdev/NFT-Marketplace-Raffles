@@ -1,16 +1,14 @@
-const express = require('express');
+const express = require("express");
 
 // Yourmey
 const users = require("./users");
-const legendaries = require("./legendaries");
+const raffles = require("./raffles");
 
-const checkAuthentication = require('./private_router');
+const checkAuthentication = require("./private_router");
 
 const router = express.Router();
 
-
-router.use('/users', checkAuthentication, users);
-router.use('/legendaries', checkAuthentication, legendaries);
-
+router.use("/users", checkAuthentication, users);
+router.use("/raffles", checkAuthentication, raffles);
 
 module.exports = router;

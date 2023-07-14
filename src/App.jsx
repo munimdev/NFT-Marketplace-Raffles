@@ -1,7 +1,7 @@
 import "./App.css";
 import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Landing from "./Pages/Landing";
 

@@ -185,3 +185,22 @@
     transform: rotate(360deg);
   }
 }
+
+/* Define the animation */
+@keyframes rotation {
+  0% {
+    transform: perspective(600px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(600px) rotateY(360deg);
+  }
+}
+
+/* Apply the animation to your element */
+.rotate-token {
+  animation-name: rotation;
+  animation-duration: 2s; /* adjust this value to change the speed of the animation */
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transform-style: preserve-3d; /* Required to enable 3D transforms */
+}

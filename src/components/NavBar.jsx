@@ -11,8 +11,8 @@ import logo from "../assets/images/wld-logo.png";
 function Navbar({ transparent = false }) {
   const {
     account,
-    connectWalletHandle,
-    isWalletAlreadyConnected,
+    // connectWalletHandle,
+    // isWalletAlreadyConnected,
     disconnectWalletFromApp,
     connectWallet,
   } = useModal();
@@ -50,7 +50,7 @@ function Navbar({ transparent = false }) {
         }
         style={{ zIndex: 100 }}
       >
-        <div className="container text-white max-w-7xl">
+        <div className="container max-w-5xl text-white">
           <div className="flex items-center justify-between py-5 border-gray-100 md:space-x-6">
             <div className="flex items-center justify-start space-x-0 sm:space-x-4 lg:space-x-8">
               <Link to="/">
@@ -72,7 +72,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Home</span>
               </a>
@@ -81,7 +81,7 @@ function Navbar({ transparent = false }) {
                 href="https://mint.wildtigers.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Mint</span>
               </a>
@@ -90,7 +90,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/artwork/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Artwork</span>
               </a>
@@ -99,7 +99,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/wild-world/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Wild World</span>
               </a>
@@ -108,7 +108,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/characters/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Characters</span>
               </a>
@@ -117,7 +117,7 @@ function Navbar({ transparent = false }) {
                 href="https://wildtigers.xyz/team/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`py-2 inline-flex items-center rounded-full text-xl text-white nav-item`}
+                className={`py-2 inline-flex items-center rounded-full text-base text-white nav-item`}
               >
                 <span>Team</span>
               </a>
@@ -130,7 +130,7 @@ function Navbar({ transparent = false }) {
               </Popover.Button>
             </div>
 
-            <div className="items-center hidden text-xl lg:flex">
+            <div className="items-center hidden text-base lg:flex">
               {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               {account !== undefined ? (
                 <>

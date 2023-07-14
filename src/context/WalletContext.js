@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ModalContext } from "./ModalContext";
 import {
   connectWalletLocaly,
@@ -12,6 +12,7 @@ import Web3Modal from "web3modal";
 // import WalletConnectProvider from "@walletconnect/web3-provider"; // deprecated
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { NFTAddress, NFTABI } from "../config";
+import { createUser } from "../util/api.js";
 
 const activeChain = 5;
 
@@ -37,6 +38,7 @@ const WalletContext = ({ children }) => {
 
   const [connectWalletModal, setConnectWalletModal] = useState(false);
   const [account, setAccount] = useState(undefined);
+  const [user, setUser] = useState(undefined); // [address, balance
   const [web3api, setWeb3api] = useState(undefined);
   const [userBalance, setUserBalance] = useState(undefined);
   const [NFTContract, setNFTContract] = useState(undefined);
@@ -84,11 +86,22 @@ const WalletContext = ({ children }) => {
         let accounts = await web3.eth.getAccounts();
         const balance = await web3.eth.getBalance(accounts[0]);
         setUserBalance(Web3.utils.fromWei(balance, "ether"));
-        setAccount(accounts);
+        const { data } = await createUser({
+          address: accounts[0],
+        });
         //save in local storage
         if (!isWalletConnected()) {
           connectWalletLocaly();
         }
+        const user = {
+          wallets: accounts,
+          points: data.points,
+          tickets: data.tickets,
+          isAdmin: data.isAdmin,
+        };
+        console.log(accounts);
+        setAccount(accounts);
+        setUser(user);
         return accounts;
       })
       .catch((err) => {
@@ -142,6 +155,7 @@ const WalletContext = ({ children }) => {
       value={{
         account,
         userBalance,
+        user,
         web3api,
         NFTContract,
         isWalletAlreadyConnected,

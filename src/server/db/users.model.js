@@ -3,7 +3,7 @@ module.exports = (mongoose) => {
     "User",
     mongoose.Schema(
       {
-        walletAddress: { type: String, required: true, unique: true },
+        address: { type: String, required: true, unique: true },
         points: { type: Number, default: 0 },
         tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }],
         isAdmin: { type: Boolean, default: false },

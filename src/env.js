@@ -9,6 +9,7 @@ const mainnet_http_RPC =
   "https://polygon-mainnet.g.alchemy.com/v2/yVcv2MTQpFLvVclugH6QPGKPBsFAZrDg";
 const testnet_http_RPC =
   "https://speedy-nodes-nyc.moralis.io/20cea78632b2835b730fdcf4/polygon/mainnet";
+const opensea_key = "dadc4221e8ac46ffa3e9fa3fd8e24ac7";
 
 module.exports = {
   jwt_enc_key,
