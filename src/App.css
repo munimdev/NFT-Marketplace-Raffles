@@ -196,6 +196,11 @@
   }
 }
 
+.social-icon svg:hover path {
+  fill: theme("colors.primary");
+  transition: all 0.3s ease-in-out;
+}
+
 /* Apply the animation to your element */
 .rotate-token {
   animation-name: rotation;
@@ -203,4 +208,29 @@
   animation-iteration-count: infinite;
   animation-timing-function: linear;
   transform-style: preserve-3d; /* Required to enable 3D transforms */
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: theme("colors.secondary");
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: theme("colors.primary");
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: theme("colors.pHover");
+}
+
+.history-data:nth-child(1) {
+  border-top: 1px solid theme("colors.gray.600");
 }

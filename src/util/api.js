@@ -15,8 +15,16 @@ export const createDummyRaffle = async () => {
   const res = await api.get("/api/raffles/dummy");
   return res.data;
 };
+export const createRaffle = async (payload) => {
+  const res = await api.post("/api/raffles/create", payload);
+  return res.data;
+};
 export const getAllRaffles = async () => {
   const res = await api.get("/api/raffles/all");
+  return res.data;
+};
+export const raffleHistory = async () => {
+  const res = await api.get("/api/raffles/history");
   return res.data;
 };
 export const getUserRaffles = async (payload) => {
@@ -35,5 +43,21 @@ export const purchaseTickets = async (payload) => {
 
 export const createUser = async (payload) => {
   const res = await api.post("/api/users/create", payload);
+  return res.data;
+};
+export const searchUser = async (payload) => {
+  const res = await api.post("/api/users/search", payload);
+  return res.data;
+};
+export const banUser = async (payload) => {
+  const res = await api.post("/api/users/ban", payload);
+  return res.data;
+};
+export const unbanUser = async (payload) => {
+  const res = await api.post("/api/users/unban", payload);
+  return res.data;
+};
+export const addPoints = async (payload) => {
+  const res = await api.post("/api/users/points/add", payload);
   return res.data;
 };

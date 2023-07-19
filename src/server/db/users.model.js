@@ -5,8 +5,14 @@ module.exports = (mongoose) => {
       {
         address: { type: String, required: true, unique: true },
         points: { type: Number, default: 0 },
-        tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }],
+        tickets: [
+          {
+            raffle: { type: mongoose.Schema.Types.ObjectId, ref: "Raffle" },
+            purchasedAt: { type: Date, default: Date.now },
+          },
+        ],
         isAdmin: { type: Boolean, default: false },
+        banned: { type: Boolean, default: false },
         // minted: [{
         //     id: Number,
         //     name: String,

@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from "react";
 import logo from "../assets/images/wld-logo.png";
 import mintGif from "../assets/images/mint.gif";
 import stripeLogo from "../assets/images/stripe-logo.png";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Transition, Tab } from "@headlessui/react";
 import { useModal } from "../context/ModalContext";
 import { toast } from "react-toastify";
 import { getAllRaffles, getUserRaffles, purchaseTickets } from "../util/api";
@@ -125,6 +125,8 @@ const ethereumSVG = (
 
 const Landing = () => {
   const [raffles, setRaffles] = useState([]);
+  const [ongoingRaffles, setOngoingRaffles] = useState([]);
+  const [expiredRaffles, setExpiredRaffles] = useState([]);
   const { account, user } = useModal();
 
   useEffect(() => {
@@ -139,6 +141,30 @@ const Landing = () => {
     };
     fetchRaffles();
   }, []);
+
+  useEffect(() => {
+    const now = new Date();
+
+    const ongoing = raffles
+      .filter((r) => new Date(r.expiry) > now)
+      .map((r) => ({ ...r, expired: false }));
+
+    ongoing.forEach((raffle) => {
+      const timeout = setTimeout(() => {
+        raffle.expired = true;
+      }, raffle.expiry - now);
+
+      return () => clearTimeout(timeout);
+    });
+
+    setOngoingRaffles(ongoing);
+
+    const expired = raffles
+      .filter((r) => new Date(r.expiry) <= now)
+      .map((r) => ({ ...r, expired: true }));
+
+    setExpiredRaffles(expired);
+  }, [raffles]);
 
   const purchaseTicket = async (raffleId, quantity) => {
     // return promises
@@ -170,6 +196,16 @@ const Landing = () => {
       });
     }
   };
+
+  const tabStyle = `
+  text-lg font-medium text-gray-500 px-5 py-2.5 text-center
+  bg-secondary rounded-t-lg focus:outline-none hover:text-white transition duration-100 ease-in-out
+`;
+
+  const activeTabStyle = `
+  text-lg font-medium px-5 py-2.5 text-center rounded-t-lg
+  bg-primary text-white focus:outline-none
+`;
 
   return (
     <div className="container max-w-5xl mt-10">
@@ -209,21 +245,113 @@ const Landing = () => {
           </div>
         </div>
       )}
-      <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
-        {/* <RaffleCard />
-        <RaffleCard />
-        <RaffleCard />
-        <RaffleCard />
-        <RaffleCard /> */}
-        {raffles?.map((raffle) => (
-          <RaffleCard
-            key={raffle._id}
-            raffleDetails={raffle}
-            account={account}
-            handlePurchase={purchaseTicket}
-          />
-        ))}
-      </div>
+      <Tab.Group>
+        <Tab.List className="flex justify-center gap-2 mb-5">
+          {ongoingRaffles && ongoingRaffles.length > 0 && (
+            <Tab
+              className={({ selected }) =>
+                selected ? activeTabStyle : tabStyle
+              }
+            >
+              Ongoing
+            </Tab>
+          )}
+          {expiredRaffles && expiredRaffles.length > 0 && (
+            <Tab
+              className={({ selected }) =>
+                selected ? activeTabStyle : tabStyle
+              }
+            >
+              Expired
+            </Tab>
+          )}
+        </Tab.List>
+
+        <Tab.Panels>
+          <Tab.Panel>
+            <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
+              {ongoingRaffles.map((raffle) => (
+                <RaffleCard
+                  key={raffle._id}
+                  raffleDetails={raffle}
+                  account={account}
+                  handlePurchase={purchaseTicket}
+                  expired={false}
+                />
+              ))}
+            </div>
+          </Tab.Panel>
+
+          <Tab.Panel>
+            <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
+              {expiredRaffles.map((raffle) => (
+                <RaffleCard
+                  key={raffle._id}
+                  raffleDetails={raffle}
+                  account={account}
+                  handlePurchase={purchaseTicket}
+                  expired={true}
+                />
+              ))}
+            </div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
+      {/* {raffles && raffles.length > 0 ? (
+        <Tab.Group>
+          <Tab.List className="flex justify-center gap-2 mb-5">
+            <Tab
+              className={({ selected }) =>
+                selected ? activeTabStyle : tabStyle
+              }
+            >
+              Ongoing
+            </Tab>
+            <Tab
+              className={({ selected }) =>
+                selected ? activeTabStyle : tabStyle
+              }
+            >
+              Expired
+            </Tab>
+          </Tab.List>
+
+          <Tab.Panels>
+            <Tab.Panel>
+              <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
+                {ongoingRaffles.map((raffle) => (
+                  <RaffleCard
+                    key={raffle._id}
+                    raffleDetails={raffle}
+                    account={account}
+                    handlePurchase={purchaseTicket}
+                    expired={false}
+                  />
+                ))}
+              </div>
+            </Tab.Panel>
+
+            <Tab.Panel>
+              <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3 gap-y-10 text-text">
+                {expiredRaffles.map((raffle) => (
+                  <RaffleCard
+                    key={raffle._id}
+                    raffleDetails={raffle}
+                    account={account}
+                    handlePurchase={purchaseTicket}
+                    expired={true}
+                  />
+                ))}
+              </div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
+      ) : (
+        <div className="flex justify-center">
+          <div className="w-32 h-32 border-t-2 border-b-2 rounded-full animate-spin border-primary"></div>
+        </div>
+      )} */}
+
       <div>
         <div className="flex justify-center my-16">
           <img
@@ -280,13 +408,14 @@ const Landing = () => {
 };
 
 const svgMapping = {
+  website: globeSVG,
   opensea: openseaSVG,
-  etherscan: globeSVG,
+  etherscan: ethereumSVG,
   twitter: twitterSVG,
   discord: discordSVG,
 };
 
-const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
+const RaffleCard = ({ raffleDetails, account, handlePurchase, expired }) => {
   const [open, setOpen] = React.useState(false);
   const [days, setDays] = React.useState(0);
   const [hours, setHours] = React.useState(0);
@@ -315,7 +444,7 @@ const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
   }, [account, raffle._id]);
 
   React.useEffect(() => {
-    if (open) {
+    if (open && !expired) {
       const intervalId = setInterval(() => {
         const timeDifference = new Date(raffle.expiry) - new Date();
 
@@ -341,7 +470,7 @@ const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
       // Clear interval on component unmount or when 'open' changes to false
       return () => clearInterval(intervalId);
     }
-  }, [raffle.expiry, open]);
+  }, [raffle.expiry, open, expired]);
 
   const [counter, setCounter] = React.useState(1);
   const maxCount = 5;
@@ -377,22 +506,23 @@ const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-5 shadow-md bg-secondary rounded-3xl">
-      <div className="text-xl font-bold raff-card-title">{`${raffle.item.name} #${raffle.item.tokenId}`}</div>
-      <div className="mt-6 raff-card-image">
+      <div className="text-xl font-bold ">{`${raffle.item.name} #${raffle.item.tokenId}`}</div>
+      <div className="mt-6 ">
         <img
           className="object-cover rounded-2xl"
-          src={`${raffle.item.image}?img-width=684`}
+          src={`${raffle.item.image}?img-width=874`}
           alt={`${raffle.item.name} #${raffle.item.tokenId}`}
         />
       </div>
-      <div className="flex flex-row items-center justify-center m-3">
+      <div className="flex flex-row items-center justify-center gap-6 mx-3 my-5">
         {Object.keys(raffle.item.links).map(
           (key) =>
-            svgMapping[key] && (
+            svgMapping[key] &&
+            raffle.item.links[key] && (
               <a
                 key={key}
                 href={raffle.item.links[key]}
-                className="flex items-center justify-center w-full px-4 py-2"
+                className="flex items-center justify-center w-full transition duration-300 ease-in-out social-icon hover:-translate-y-1"
               >
                 {svgMapping[key]}
               </a>
@@ -401,33 +531,29 @@ const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-col items-center justify-center w-full h-full m-3">
-        <p className="mt-2 text-base font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium ">
           Raffle for {`${raffle.item.name} #${raffle.item.tokenId}`}
         </p>
-        <p className="mt-2 text-base font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium ">
           {raffle.price} $STRIPE per ticket
         </p>
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-col items-center justify-center w-full h-full m-3">
-        <p className="mt-2 text-base font-medium raff-card-description">
-          Type: RAFFLE
-        </p>
-        <p className="mt-2 text-base font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium ">Type: RAFFLE</p>
+        <p className="mt-2 text-base font-medium ">
           Maximum entries: 5 per wallet
         </p>
-        <p className="mt-2 text-base font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium ">
           Expires at: {new Date(raffle.expiry).toLocaleString()}
         </p>
-        <p className="mt-2 text-base font-medium raff-card-description">
+        <p className="mt-2 text-base font-medium ">
           Tickets sold {raffle.ticketsSold}/{raffle.maxTickets}
         </p>
       </div>
       <hr className="w-full border-gray-600" />
       <div className="flex flex-row justify-between w-full h-full px-1 mt-3">
-        <p className="mt-2 text-base font-medium raff-card-description">
-          {raffle.price} $STRIPE
-        </p>
+        <p className="mt-2 text-base font-medium ">{raffle.price} $STRIPE</p>
         <button
           onClick={handleOpen}
           className="px-4 py-2 text-base font-medium transition duration-500 ease-in-out transform rounded-3xl bg-primary hover:bg-pHover"
@@ -466,61 +592,80 @@ const RaffleCard = ({ raffleDetails, account, handlePurchase }) => {
                     >
                       Payment successful
                     </Dialog.Title> */}
+                    <div
+                      className="absolute z-10 p-1 rounded-full cursor-pointer top-2 right-2 "
+                      onClick={handleClose}
+                    >
+                      <svg
+                        className="w-6 h-6 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        ></path>
+                      </svg>
+                    </div>
                     <div className="grid grid-cols-1 gap-4 mt-2 lg:grid-cols-2">
                       <div className="flex flex-col items-center justify-center p-8">
-                        <div className="text-xl font-bold raff-card-title">
+                        <div className="text-xl font-bold">
                           {`${raffle.item.name} #${raffle.item.tokenId}`}
                         </div>
-                        <div className="mt-4 raff-card-image">
+                        <div className="mt-4">
                           <img
                             className="object-cover w-full h-full rounded-2xl"
-                            src={raffle.item.image}
+                            src={`${raffle.item.image}?img-width=874`}
                             alt={`${raffle.item.name} #${raffle.item.tokenId}`}
                           />
                         </div>
-                        <div className="self-start mt-2 text-base font-light text-left text-gray-400 raff-card-title">
+                        <div className="self-start mt-2 text-base text-left text-gray-500">
                           {raffle.item.description}
                         </div>
                       </div>
                       <div className="flex flex-col items-center justify-center p-8">
-                        <p className="text-xl font-medium raff-card-description">
+                        <p className="text-xl font-medium ">
                           {raffle.ticketsSold}/{raffle.maxTickets}
                           {" tickets "}
                           <span className="text-primary">sold</span>
                         </p>
-                        <div className="flex flex-row items-center justify-center w-full gap-4 mt-20 text-3xl countdown-timer">
+                        <div className="flex flex-row items-center justify-center w-full gap-2 mt-20 text-3xl lg:gap-4 countdown-timer">
                           <div className="flex flex-col items-center">
-                            <div className="pb-1 text-xl">{`${
+                            <div className="pb-1 text-base lg:text-xl">{`${
                               days !== 1 ? "Days" : "Day"
                             }`}</div>
-                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                            <div className="flex items-center justify-center w-12 h-12 border-2 md:w-16 md:h-16 lg:w-20 lg:h-20 border-accent rounded-2xl">
                               {days}
                             </div>
                           </div>
                           <div className="mt-4 text-2xl">:</div>
                           <div className="flex flex-col items-center">
-                            <div className="pb-1 text-xl">{`${
+                            <div className="pb-1 text-base lg:text-xl">{`${
                               hours !== 1 ? "Hours" : "Hour"
                             }`}</div>
-                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                            <div className="flex items-center justify-center w-12 h-12 border-2 md:w-16 md:h-16 lg:w-20 lg:h-20 border-accent rounded-2xl">
                               {hours}
                             </div>
                           </div>
                           <div className="mt-4 text-2xl">:</div>
                           <div className="flex flex-col items-center">
-                            <div className="pb-1 text-xl">{`${
+                            <div className="pb-1 text-base lg:text-xl">{`${
                               minutes !== 1 ? "Minutes" : "Minute"
                             }`}</div>
-                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                            <div className="flex items-center justify-center w-12 h-12 border-2 md:w-16 md:h-16 lg:w-20 lg:h-20 border-accent rounded-2xl">
                               {minutes}
                             </div>
                           </div>
                           <div className="mt-4 text-2xl">:</div>
                           <div className="flex flex-col items-center">
-                            <div className="pb-1 text-xl">{`${
+                            <div className="pb-1 text-base lg:text-xl">{`${
                               seconds !== 1 ? "Seconds" : "Second"
                             }`}</div>
-                            <div className="flex items-center justify-center w-20 h-20 border-2 border-accent rounded-2xl">
+                            <div className="flex items-center justify-center w-12 h-12 border-2 md:w-16 md:h-16 lg:w-20 lg:h-20 border-accent rounded-2xl">
                               {seconds}
                             </div>
                           </div>

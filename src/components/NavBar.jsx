@@ -2,7 +2,7 @@ import React from "react";
 import { Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { FaSignInAlt, FaWallet } from "react-icons/fa";
+// import { FaSignInAlt, FaWallet } from "react-icons/fa";
 import { useModal } from "../context/ModalContext";
 import { Link } from "react-router-dom";
 
@@ -66,7 +66,7 @@ function Navbar({ transparent = false }) {
             </div>
             <Popover.Group
               as="nav"
-              className="hidden mx-auto space-x-0 md:flex md:gap-6"
+              className="hidden mx-auto space-x-0 md:flex md:gap-8 lg:gap-12"
             >
               <a
                 href="https://wildtigers.xyz/"
@@ -76,7 +76,7 @@ function Navbar({ transparent = false }) {
               >
                 <span>Home</span>
               </a>
-              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               <a
                 href="https://mint.wildtigers.xyz/"
                 target="_blank"
@@ -85,7 +85,7 @@ function Navbar({ transparent = false }) {
               >
                 <span>Mint</span>
               </a>
-              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               <a
                 href="https://wildtigers.xyz/artwork/"
                 target="_blank"
@@ -94,7 +94,7 @@ function Navbar({ transparent = false }) {
               >
                 <span>Artwork</span>
               </a>
-              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               <a
                 href="https://wildtigers.xyz/wild-world/"
                 target="_blank"
@@ -103,7 +103,7 @@ function Navbar({ transparent = false }) {
               >
                 <span>Wild World</span>
               </a>
-              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               <a
                 href="https://wildtigers.xyz/characters/"
                 target="_blank"
@@ -112,7 +112,7 @@ function Navbar({ transparent = false }) {
               >
                 <span>Characters</span>
               </a>
-              <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div>
+              {/* <div className="hidden h-6 mr-3 border-l border-black sm:block place-self-center dark:border-neutral-6000"></div> */}
               <a
                 href="https://wildtigers.xyz/team/"
                 target="_blank"

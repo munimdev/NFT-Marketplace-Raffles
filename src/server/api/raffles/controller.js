@@ -9,12 +9,14 @@ const jwt_enc_key = require("../../../env").jwt_enc_key;
 const admin_address = require("../../../env").admin_address;
 const signIn_break_timeout = require("../../../env").signIn_break_timeout;
 const opensea_key = require("../../../env").opensea_key;
-var ObjectId = require("mongodb").ObjectID;
+// var ObjectId = require("mongodb").ObjectID;
+const { ObjectId } = require("mongodb");
 const web3 = require("web3");
 const dummyData = require("./raffleData.json");
 
 const HTTP_STATUS = {
   OK: 200,
+  CREATED: 201,
   BAD_REQUEST: 400,
   INTERNAL_SERVER_ERROR: 500,
   NOT_FOUND: 404,
@@ -29,6 +31,7 @@ const RESPONSE_MESSAGES = {
 exports.dummy = async ({}, res) => {
   try {
     await Raffles.deleteMany({});
+    await Tickets.deleteMany({});
 
     let dummyJson = JSON.parse(JSON.stringify(dummyData));
 
@@ -77,7 +80,6 @@ exports.getAllRaffles = async (req, res) => {
 
   // get all raffles
   const raffles = await Raffles.find({}).catch((err) => {
-    console.log("Error getting all raffles: ", err);
     return res
       .status(500)
       .send({ success: false, message: "Internal server error." });
@@ -100,7 +102,9 @@ exports.getRaffleTicketsByUser = async (req, res) => {
   const { raffleId, userAddress } = req.params;
 
   try {
-    const user = await Users.findOne({ address: userAddress });
+    const user = await Users.findOne({
+      address: web3.utils.toChecksumAddress(userAddress),
+    });
 
     if (!user) {
       return res.status(404).send({
@@ -122,7 +126,6 @@ exports.getRaffleTicketsByUser = async (req, res) => {
       data: tickets,
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).send({
       success: false,
       message: "Server error",
@@ -140,6 +143,7 @@ exports.purchaseTickets = async (req, res) => {
     const raffle = await Raffles.findById(raffleId);
     if (!raffle) {
       return res.status(404).send({
+        success: false,
         message: "Raffle not found",
       });
     }
@@ -147,15 +151,26 @@ exports.purchaseTickets = async (req, res) => {
     // Check raffle expiry
     if (raffle.expiry < Date.now()) {
       return res.status(400).send({
+        success: false,
         message: "Raffle has expired",
       });
     }
 
     // Lookup user
-    const user = await Users.findOne({ address: address });
+    const user = await Users.findOne({
+      address: web3.utils.toChecksumAddress(address),
+    });
     if (!user) {
       return res.status(404).send({
+        success: false,
         message: "User not found",
+      });
+    }
+
+    if (user.banned) {
+      return res.status(400).send({
+        success: false,
+        message: "You are restricted from performing this action",
       });
     }
 
@@ -167,6 +182,7 @@ exports.purchaseTickets = async (req, res) => {
 
     if (userTickets.length + quantity > 5) {
       return res.status(400).send({
+        success: false,
         message: "Cannot purchase more than 5 tickets for a raffle",
       });
     }
@@ -180,6 +196,7 @@ exports.purchaseTickets = async (req, res) => {
     // Check number of tickets requested
     if (quantity > raffle.maxTickets - user.tickets.length) {
       return res.status(400).send({
+        success: false,
         message: "Purchase exceeds max tickets",
       });
     }
@@ -187,17 +204,22 @@ exports.purchaseTickets = async (req, res) => {
     // Check enough tickets available
     if (quantity > raffle.maxTickets - raffle.ticketsSold) {
       return res.status(400).send({
+        success: false,
         message: "Not enough tickets remaining",
       });
     }
 
-    // Purchase tickets
+    // Generate new purchaseId
+    const purchaseId = new ObjectId();
+
+    // Create tickets with same purchaseId
     const newTickets = [];
 
     for (let i = 0; i < quantity; i++) {
       const ticket = await Tickets.create({
         raffle: raffle._id,
         user: user._id,
+        purchaseId,
       });
 
       newTickets.push(ticket);
@@ -207,19 +229,159 @@ exports.purchaseTickets = async (req, res) => {
     raffle.ticketsSold += newTickets.length;
     await raffle.save();
 
-    // Add to user's tickets
+    // Add tickets to user's tickets array
     user.tickets.push(...newTickets);
     await user.save();
 
-    return res.status(201).send({
+    res.status(201).json({
       success: true,
       data: newTickets,
-      message: "Tickets purchased successfully",
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).send({
-      message: "Server error",
+    res.status(500).json({
+      error: "Failed to purchase tickets",
     });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const { item, price, expiry, maxTickets } = req.body;
+
+    // Validate required fields
+    if (!item || !price || !expiry || !maxTickets) {
+      // return res.status(400).send({
+      //   success: false,
+      //   message: "Required fields missing",
+      // });
+      if (!item) {
+        return res.status(400).send({
+          success: false,
+          message: "Item field is missing",
+        });
+      }
+
+      if (!maxTickets) {
+        return res.status(400).send({
+          success: false,
+          message: "Max tickets field is missing",
+        });
+      }
+
+      if (!price) {
+        return res.status(400).send({
+          success: false,
+          message: "Price field is missing",
+        });
+      }
+
+      if (!expiry) {
+        return res.status(400).send({
+          success: false,
+          message: "Expiry field is missing",
+        });
+      }
+
+      return res.status(400).send({
+        success: false,
+        message: "Required fields missing",
+      });
+    }
+
+    // Validate expiry date
+    if (expiry * 1000 <= Date.now()) {
+      return res.status(400).send({
+        success: false,
+        message: "Expiry date must be in future",
+      });
+    }
+
+    // Create and save raffle
+    const raffle = await Raffles.create({
+      item,
+      price,
+      expiry: new Date(expiry * 1000),
+      maxTickets,
+    });
+
+    res.status(201).send({
+      success: true,
+      data: raffle,
+      message: "Raffle created successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: RESPONSE_MESSAGES.SERVER_ERROR,
+    });
+  }
+};
+
+exports.history = async (req, res) => {
+  try {
+    const history = await Raffles.aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "_id",
+          foreignField: "raffle",
+          as: "tickets",
+        },
+      },
+      {
+        $unwind: "$tickets",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "tickets.user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $group: {
+          _id: {
+            raffleId: "$_id",
+            purchaseId: "$tickets.purchaseId",
+          },
+          address: { $first: "$user.address" },
+          time: { $max: "$tickets.purchasedAt" },
+          amount: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.raffleId",
+          history: {
+            $push: {
+              address: "$address",
+              amount: "$amount",
+              time: "$time",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          raffleId: "$_id",
+          history: 1,
+        },
+      },
+    ]);
+
+    // Transform the data into the requested format
+    const result = history.reduce((res, item) => {
+      res[item.raffleId] = item.history;
+      return res;
+    }, {});
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get history" });
   }
 };

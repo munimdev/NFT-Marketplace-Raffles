@@ -6,7 +6,9 @@ router.get("/dummy", raffles.dummy);
 router.get("/all", raffles.getAllRaffles);
 router.get("/:raffleId/tickets/:userAddress", raffles.getRaffleTicketsByUser);
 router.post("/:raffleId/purchase", raffles.purchaseTickets);
-// router.post("/create", raffles.create);
+router.post("/create", raffles.create);
+router.get("/history", raffles.history);
+
 // router.post("/info", raffles.info);
 // router.get("/dummy", raffles.dummy);
 

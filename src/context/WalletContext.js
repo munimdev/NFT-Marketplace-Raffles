@@ -18,7 +18,7 @@ const activeChain = 5;
 
 const WalletContext = ({ children }) => {
   const INFURA_ID = process.env.REACT_APP_INFURA_ID;
-  const PROJECT_ID = process.env.REACT_APP_PROJECT_ID;
+  // const PROJECT_ID = process.env.REACT_APP_PROJECT_ID;
 
   const providerOptions = {
     walletconnect: {
@@ -68,6 +68,7 @@ const WalletContext = ({ children }) => {
   };
 
   const connectWallet = async () => {
+    const loadingToast = toast.loading("Connecting to wallet...");
     // await providerClient.connect();
     const web3Modal = new Web3Modal({
       network: "mainnet",
@@ -82,29 +83,33 @@ const WalletContext = ({ children }) => {
         setWeb3api(web3);
         const mintingContract = new web3.eth.Contract(NFTABI, NFTAddress);
         setNFTContract(mintingContract);
-        toast.success("Wallet connected");
         let accounts = await web3.eth.getAccounts();
+        accounts = accounts.map((account) => {
+          return web3.utils.toChecksumAddress(account);
+        });
         const balance = await web3.eth.getBalance(accounts[0]);
         setUserBalance(Web3.utils.fromWei(balance, "ether"));
-        const { data } = await createUser({
-          address: accounts[0],
-        });
         //save in local storage
         if (!isWalletConnected()) {
           connectWalletLocaly();
         }
+        const { data } = await createUser({
+          address: accounts[0],
+        });
         const user = {
           wallets: accounts,
           points: data.points,
           tickets: data.tickets,
           isAdmin: data.isAdmin,
         };
-        console.log(accounts);
-        setAccount(accounts);
+        toast.dismiss(loadingToast);
         setUser(user);
+        setAccount(accounts);
+        toast.success("Wallet connected");
         return accounts;
       })
       .catch((err) => {
+        toast.dismiss(loadingToast);
         toast.error("User closed modal");
       });
   };
@@ -113,24 +118,40 @@ const WalletContext = ({ children }) => {
     if (isWalletConnected() && accounts.length > 0) {
       toast.info("Account change detected");
     }
+
     if (accounts.length > 0) {
-      setAccount(accounts);
+      createUser({
+        address: accounts[0],
+      })
+        .then(({ data }) => {
+          const user = {
+            wallets: accounts,
+            points: data.points,
+            tickets: data.tickets,
+            isAdmin: data.isAdmin,
+          };
+          setUser(user);
+          setAccount(accounts);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     } else {
       disconnectWalletFromApp();
     }
   };
 
-  const chainChangedHandler = () => {
-    window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${activeChain}` }],
-    });
-  };
+  // const chainChangedHandler = () => {
+  //   window.ethereum.request({
+  //     method: "wallet_switchEthereumChain",
+  //     params: [{ chainId: `0x${activeChain}` }],
+  //   });
+  // };
 
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", accountChangedHandler);
-      window.ethereum.on("chainChanged", chainChangedHandler);
+      // window.ethereum.on("chainChanged", chainChangedHandler);
     }
   }, []);
 
@@ -154,8 +175,8 @@ const WalletContext = ({ children }) => {
     <ModalContext.Provider
       value={{
         account,
-        userBalance,
         user,
+        userBalance,
         web3api,
         NFTContract,
         isWalletAlreadyConnected,
